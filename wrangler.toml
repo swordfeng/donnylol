@@ -1,0 +1,5 @@
+name = "donnylol"
+type = "webpack"
+account_id = "7d248d5606f44400b99898421700ca8c"
+workers_dev = true
+webpack_config = "webpack.config.js"

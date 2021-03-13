@@ -1,0 +1,72 @@
+# search engines
+- keywords: ["g"]
+  search: https://www.google.com/search?q={query}
+  default: https://www.google.com/
+- keywords: ["b"]
+  search: https://www.bing.com/search?q={query}
+  default: https://www.bing.com/
+- keywords: ["d", "ddg"]
+  search: https://duckduckgo.com/?q={query}
+  default: https://duckduckgo.com/
+- keywords: ["s", "sp"]
+  search: https://www.startpage.com/sp/search?q={query}
+  default: https://www.startpage.com/
+# wiki
+- match: "(wiki)([a-z]{2,3})"
+  search: https://{2}.wikipedia.org/wiki/Special:Search?search={query}
+- keywords: ["w"]
+  search: https://en.wikipedia.org/wiki/Special:Search?search={query}
+  default: https://www.wikipedia.org/
+# image search
+- keywords: ["gi"]
+  search: https://www.google.com/search?tbm=isch&q={query}
+  default: https://www.google.com/imghp
+- keywords: ["bi"]
+  search: https://www.bing.com/images/search?q={query}
+  default: https://www.bing.com/images
+# github
+- keywords: ["gh"]
+  search: https://github.com/search?q={query}
+# programming
+- keywords: ["cpp", "cxx"]
+  search: https://en.cppreference.com/mwiki/index.php?search={query}
+  default: https://en.cppreference.com/
+- keywords: ["rs"]
+  search: https://doc.rust-lang.org/std/index.html?search={query}
+  default: https://doc.rust-lang.org/std/
+- match: "(rsdocs?|rs-docs?) (\\S+)"
+  search: https://docs.rs/{2}/latest/?search={query}
+- keywords: ["rsdocs", "rs-docs"]
+  search: https://docs.rs/releases/search?query={query}
+  default: https://docs.rs/
+- keywords: ["crate", "crates"]
+  search: https://crates.io/search?q={query}
+  default: https://crates.io/
+- keywords: ["hs", "hoogle"]
+  search: https://hoogle.haskell.org/?hoogle={query}
+  default: https://hoogle.haskell.org/
+- keywords: ["stack", "stackage"]
+  search: https://www.stackage.org/lts/hoogle?q={query}
+  default: https://www.stackage.org/
+# reddit
+- keywords: ["r"]
+  search: https://www.reddit.com/search?q={query}
+  default: https://www.reddit.com/
+- match: "r/([A-Za-z0-9_\\.]+)"
+  search: https://www.reddit.com/r/{1}/search?q={query}
+  default: https://www.reddit.com/r/{1}/
+# urban dictionary
+- keywords: ["ub"]
+  search: https://www.urbandictionary.com/define.php?term={query}
+  default: https://www.urbandictionary.com/
+# bilibili
+- match: "av\\d+|[bB][vV][A-Za-z0-9]+"
+  default: https://www.bilibili.com/video/{keyword}
+# bang pattern to duckduckgo
+- match: "!\\S+"
+  search: https://duckduckgo.com/?q={keyword}+{query}
+# cups
+- keywords: ["cups"]
+  default: "http://localhost:631/"
+# default
+- search: https://www.google.com/search?q={query}

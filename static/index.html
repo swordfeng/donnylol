@@ -1,0 +1,24 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Donnylol</title>
+        <link rel="search"
+              type="application/opensearchdescription+xml"
+              title="donny"
+              href="/search-plugin.xml">
+        <script>
+            const rules = ;
+            
+            
+        </script>
+    </head>
+    <body>
+        <h1>MAKE SEARCH GREAT AGAIN!</h1>
+        <p>Current rules:</p>
+        <pre id="rules"></pre>
+        <script>
+            document.getElementById('rules').innerHTML = JSON.stringify(rules, null, 2);
+        </script>
+    </body>
+</html>

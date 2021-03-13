@@ -1,0 +1,10 @@
+<OpenSearchDescription xmlns="http://a9.com/-/spec/opensearch/1.1/"
+    xmlns:moz="http://www.mozilla.org/2006/browser/search/">
+    <ShortName>donny</ShortName>
+    <Description>Donnylol custom search tool</Description>
+    <InputEncoding>UTF-8</InputEncoding>
+    <Image width="64" height="64" type="image/jpeg">https://donny.taiho.moe/favicon.jpg</Image>
+    <Image width="16" height="16" type="image/x-icon">https://donny.taiho.moe/favicon.ico</Image>
+    <Url type="text/html" template="https://donny.taiho.moe/?q={searchTerms}" />
+    <moz:SearchForm>https://donny.taiho.moe/</moz:SearchForm>
+</OpenSearchDescription>
