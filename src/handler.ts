@@ -24,6 +24,19 @@ export async function handleRequest(request: Request): Promise<Response> {
             },
         })
     }
+    if (request_url.pathname === '/suggestion') {
+        const rules = await fetchRules(request)
+        const query = request_url.searchParams.get("q")
+        if (query) {
+            const suggestion = await handleSuggestion(query, rules)
+            return new Response(JSON.stringify(suggestion), {
+                headers: {
+                    "content-type": "application/json;charset=UTF-8",
+                }
+            })
+        }
+        return new Response(`400: Bad Request`, { status: 400 })
+    }
     if (request_url.pathname === '/search-plugin.xml') {
         return new Response(searchPluginContent(request_url.host), {
             headers: {
@@ -164,7 +177,10 @@ async function fetchRulesFromURL(url: string): Promise<string | null> {
 
 async function fetchRulesFromKV(url: string): Promise<string | null> {
     try {
-        const data = await DONNY_RULES_CACHE.getWithMetadata(url)
+        const data: {
+            value: string | null,
+            metadata: { refresh: number } | null,
+        } = await DONNY_RULES_CACHE.getWithMetadata(url)
         if (data.value && (!data.metadata || data.metadata.refresh < Date.now())) {
             await cacheRulesKV(url, data.value)
         }
@@ -205,44 +221,67 @@ interface Rule {
     keywords?: string[],
     match?: string,
     search: string,
+    suggestion?: string,
     default?: string,
 }
 
-function handleQuery(query: string, rules: Rule[]): string | null {
+interface RuleMatch {
+    rule: Rule,
+    keyword: string,
+    remainQuery: string,
+    match?: RegExpExecArray
+}
+
+function matchRule(query: string, rules: Rule[]): RuleMatch | null {
     const spaceIdx = query.indexOf(' ');
     const keyword = spaceIdx === -1 ? query : query.slice(0, spaceIdx);
     const remainQuery = spaceIdx === -1 ? '' : query.slice(spaceIdx + 1);
     for (const rule of rules) {
         if (rule.keywords && rule.keywords.indexOf(keyword) !== -1) {
-            if (!remainQuery && rule.default) {
-                const url = replaceUrl(rule.default, keyword, remainQuery);
-                return url;
-            }
-            if (remainQuery && rule.search) {
-                const url = replaceUrl(rule.search, keyword, remainQuery);
-                return url;
+            if (remainQuery || rule.default) {
+                return {rule, keyword, remainQuery};
             }
         }
         if (rule.match) {
             const match = new RegExp('^(?:' + rule.match + ')(?=$| )').exec(query);
             if (match) {
                 const matchedQuery = query.slice(match[0].length + 1);
-                if (!matchedQuery && rule.default) {
-                    const url = replaceUrl(rule.default, match[0], matchedQuery, match);
-                    return url;
-                }
-                if (matchedQuery && rule.search) {
-                    const url = replaceUrl(rule.search, match[0], matchedQuery, match);
-                    return url;
+                if (matchedQuery || rule.default) {
+                    return {rule, keyword: match[0], remainQuery: matchedQuery, match}
                 }
             }
         }
-        if (!rule.keywords && !rule.match && rule.search) {
-            const url = replaceUrl(rule.search, '', query);
-            return url;
+        if (!rule.keywords && !rule.match) {
+            return {rule, keyword: '', remainQuery: query};
         }
     }
     return null
+}
+
+function handleQuery(query: string, rules: Rule[]): string | null {
+    const ruleMatch = matchRule(query, rules)
+    if (!ruleMatch) return null
+    const {rule, keyword, remainQuery, match} = ruleMatch
+    if (!remainQuery && rule.default) {
+        return replaceUrl(rule.default, keyword, remainQuery, match)
+    }
+    return replaceUrl(rule.search, keyword, remainQuery, match)
+}
+
+type SuggestionResult = [string, string[], any, any]
+
+async function handleSuggestion(query: string, rules: Rule[]): Promise<SuggestionResult> {
+    const ruleMatch = matchRule(query, rules)
+    if (!ruleMatch) return [query, [], [], []]
+    const {rule, keyword, remainQuery, match} = ruleMatch
+    if (!remainQuery || !rule.suggestion) return [query, [], [], []]
+    const suggestionUrl = replaceUrl(rule.suggestion, keyword, remainQuery, match)
+    const response = await fetch(new Request(suggestionUrl))
+    const result: SuggestionResult = await response.json()
+    if (result[0] !== remainQuery) return [query, [], [], []]
+    result[0] = query
+    result[1] = result[1].map(suggestion => `${keyword} ${suggestion}`)
+    return result
 }
 
 function replaceUrl(url: string, keyword: string, query: string, match?: RegExpExecArray) {

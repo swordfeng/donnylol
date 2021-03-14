@@ -1,32 +1,42 @@
 # search engines
 - keywords: ["g"]
   search: https://www.google.com/search?q={query}
+  suggestion: https://suggestqueries.google.com/complete/search?output=firefox&q={query}
   default: https://www.google.com/
 - keywords: ["b"]
   search: https://www.bing.com/search?q={query}
+  suggestion: https://www.bing.com/osjson.aspx?query={query}
   default: https://www.bing.com/
 - keywords: ["d", "ddg"]
   search: https://duckduckgo.com/?q={query}
+  suggestion: https://duckduckgo.com/ac/?q={query}&type=list
   default: https://duckduckgo.com/
 - keywords: ["s", "sp"]
   search: https://www.startpage.com/sp/search?q={query}
+  suggestion: https://www.startpage.com/cgi-bin/csuggest?query={query}&limit=10&format=json
   default: https://www.startpage.com/
 # wiki
 - match: "(wiki)([a-z]{2,3})"
   search: https://{2}.wikipedia.org/wiki/Special:Search?search={query}
+  suggestion: https://{2}.wikipedia.org/w/api.php?action=opensearch&search={query}&limit=10&namespace=0&format=json
+  default: https://{2}.wikipedia.org/
 - keywords: ["w"]
   search: https://en.wikipedia.org/wiki/Special:Search?search={query}
+  suggestion: https://en.wikipedia.org/w/api.php?action=opensearch&search={query}&limit=10&namespace=0&format=json
   default: https://www.wikipedia.org/
 # image search
 - keywords: ["gi"]
   search: https://www.google.com/search?tbm=isch&q={query}
+  suggestion: https://images.google.com/complete/search?output=firefox&q={query}
   default: https://www.google.com/imghp
 - keywords: ["bi"]
   search: https://www.bing.com/images/search?q={query}
+  suggestion: https://www.bing.com/osjson.aspx?query={query}
   default: https://www.bing.com/images
 # github
 - keywords: ["gh"]
   search: https://github.com/search?q={query}
+  default: https://github.com/
 # programming
 - keywords: ["cpp", "cxx"]
   search: https://en.cppreference.com/mwiki/index.php?search={query}
@@ -70,3 +80,4 @@
   default: "http://localhost:631/"
 # default
 - search: https://www.google.com/search?q={query}
+  suggestion: https://suggestqueries.google.com/complete/search?output=firefox&q={query}
