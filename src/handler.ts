@@ -121,6 +121,7 @@ function searchPluginContent(host: string): string {
     <Image width="64" height="64" type="image/jpeg">https://${host}/favicon.jpg</Image>
     <Image width="16" height="16" type="image/x-icon">https://${host}/favicon.ico</Image>
     <Url type="text/html" template="https://${host}/?q={searchTerms}" />
+    <Url type="application/x-suggestions+json" template="https://${host}/suggestion?q={searchTerms}"/>
     <moz:SearchForm>https://${host}/</moz:SearchForm>
 </OpenSearchDescription>`
 }
