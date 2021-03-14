@@ -85,6 +85,7 @@ async function indexContent(request: Request): Promise<string> {
             <input type="button" id="set" value="Set">
             <input type="button" id="reset" value="Reset">
         </p>
+        <p>Would like to share your rules? Post issues / pull requests to <a href="https://github.com/swordfeng/donnylol">DonnyLOL</a>.</p>
         <p>Rules:</p>
         <pre id="rules">${(cache_fallback ? rules_cached : rules_text)}</pre>
         <script>
