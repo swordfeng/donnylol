@@ -8,8 +8,8 @@ export async function handleRequest(request: Request): Promise<Response> {
     const request_url = new URL(request.url)
 
     if (request_url.pathname === '/favicon.ico' || request_url.pathname === '/favicon.jpg') {
-        const url = decodeURIComponent(getCookie(request, "favicon_path")) || STATIC_URL
-        return fetch(new Request(`${url}${request_url.pathname}`))
+        const favicon_path = decodeURIComponent(getCookie(request, "favicon_path") || STATIC_URL)
+        return fetch(new Request(`${favicon_path}${request_url.pathname}`))
     }
     if (request_url.pathname === '/') {
         const rules = await fetchRules(request)
@@ -39,7 +39,8 @@ export async function handleRequest(request: Request): Promise<Response> {
         return new Response(`400: Bad Request`, { status: 400 })
     }
     if (request_url.pathname === '/search-plugin.xml') {
-        return new Response(searchPluginContent(request_url.host), {
+        const favicon_path = request_url.searchParams.get("favicon_path")
+        return new Response(searchPluginContent(request_url.host, favicon_path), {
             headers: {
                 "content-type": "application/opensearchdescription+xml;charset=UTF-8",
             },
@@ -62,8 +63,8 @@ async function indexContent(request: Request): Promise<string> {
         valid_yaml = false
     }
     let cache_fallback = false
-    console.log(rules_cached)
     if (!valid_yaml && rules_cached) cache_fallback = true
+    const favicon_path = getCookie(request, "favicon_path")
     return `<!doctype html>
 <html>
     <head>
@@ -72,7 +73,7 @@ async function indexContent(request: Request): Promise<string> {
         <link rel="search"
                 type="application/opensearchdescription+xml"
                 title="donny"
-                href="/search-plugin.xml">
+                href="/search-plugin.xml${(favicon_path ? "?favicon_path=" + favicon_path : "")}">
     </head>
     <body>
         <h1>MAKE SEARCH GREAT AGAIN!</h1>
@@ -143,13 +144,14 @@ async function indexContent(request: Request): Promise<string> {
 </html>`
 }
 
-function searchPluginContent(host: string): string {
+function searchPluginContent(host: string, favicon_path?: string | null): string {
+    favicon_path = favicon_path || `https://${host}/`
     return `<OpenSearchDescription xmlns="http://a9.com/-/spec/opensearch/1.1/" xmlns:moz="http://www.mozilla.org/2006/browser/search/">
     <ShortName>donny</ShortName>
     <Description>Donnylol custom search tool</Description>
     <InputEncoding>UTF-8</InputEncoding>
-    <Image width="64" height="64" type="image/jpeg">https://${host}/favicon.jpg</Image>
-    <Image width="16" height="16" type="image/x-icon">https://${host}/favicon.ico</Image>
+    <Image width="64" height="64" type="image/jpeg">${favicon_path}/favicon.jpg</Image>
+    <Image width="16" height="16" type="image/x-icon">${favicon_path}/favicon.ico</Image>
     <Url type="text/html" template="https://${host}/?q={searchTerms}" />
     <Url type="application/x-suggestions+json" template="https://${host}/suggestion?q={searchTerms}"/>
     <moz:SearchForm>https://${host}/</moz:SearchForm>
