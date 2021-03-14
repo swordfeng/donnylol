@@ -1,7 +1,8 @@
 import YAML from 'yaml'
 
-const STATIC_URL = "https://raw.githubusercontent.com/swordfeng/donnylol/master/static"
+declare const DONNY_RULES_CACHE: KVNamespace
 
+const STATIC_URL = "https://raw.githubusercontent.com/swordfeng/donnylol/master/static"
 
 export async function handleRequest(request: Request): Promise<Response> {
     const request_url = new URL(request.url)
@@ -35,7 +36,7 @@ export async function handleRequest(request: Request): Promise<Response> {
 
 async function indexContent(request: Request): Promise<string> {
     const rules_url = getRulesURL(request)
-    const rules_text = await fetchRulesFromURL(rules_url)
+    const [rules_text, rules_cached] = await Promise.all([fetchRulesFromURL(rules_url), fetchRulesFromKV(rules_url)])
     let valid_yaml = true
     try {
         if (typeof rules_text === 'string') {
@@ -46,6 +47,9 @@ async function indexContent(request: Request): Promise<string> {
     } catch (e) {
         valid_yaml = false
     }
+    let cache_fallback = false
+    console.log(rules_cached)
+    if (!valid_yaml && rules_cached) cache_fallback = true
     return `<!doctype html>
 <html>
     <head>
@@ -60,6 +64,7 @@ async function indexContent(request: Request): Promise<string> {
         <h1>MAKE SEARCH GREAT AGAIN!</h1>
         <p>Current rules URL: <a href="${rules_url}">${rules_url}</a></p>
         <p>Valid: ${valid_yaml}</p>
+        <p>Fallback to cache: ${cache_fallback}</p>
         <p>Set another rule: https://gist.github.com/
             <input type="text" id="github_user" style="min-width: 8ch; width: 0ch;">
             /
@@ -68,7 +73,7 @@ async function indexContent(request: Request): Promise<string> {
             <input type="button" id="reset" value="Reset">
         </p>
         <p>Rules:</p>
-        <pre id="rules">${rules_text}</pre>
+        <pre id="rules">${(cache_fallback ? rules_cached : rules_text)}</pre>
         <script>
             const github_user_input = document.getElementById('github_user')
             const gist_id_input = document.getElementById('gist_id')
@@ -122,9 +127,24 @@ function getRulesURL(request: Request): string {
 
 async function fetchRules(request: Request): Promise<Rule[]> {
     const rules_url = getRulesURL(request)
-    let rules_text = await fetchRulesFromURL(rules_url)
-    if (!rules_text && rules_url !== DEFAULT_RULES_URL) {
-        rules_text = await fetchRulesFromURL(DEFAULT_RULES_URL)
+    let [rules_text, rules_cache] = await Promise.all([fetchRulesFromURL(rules_url), fetchRulesFromKV(rules_url)])
+    if (rules_text) {
+        try {
+            const rules = YAML.parse(rules_text)
+            if (rules_cache !== rules_text) {
+                await cacheRulesKV(rules_url, rules_text)
+            }
+            return rules
+        } catch (e) {
+            // pass
+        }
+    } else if (rules_cache) {
+        return YAML.parse(rules_cache)
+    }
+    // fallback
+    if (rules_url !== DEFAULT_RULES_URL) {
+        rules_text = await fetchRulesFromKV(DEFAULT_RULES_URL)
+        if (!rules_text) rules_text = await fetchRulesFromURL(DEFAULT_RULES_URL)
     }
     return YAML.parse(rules_text as string)
 }
@@ -140,6 +160,28 @@ async function fetchRulesFromURL(url: string): Promise<string | null> {
     } catch (e) {
         return null
     }
+}
+
+async function fetchRulesFromKV(url: string): Promise<string | null> {
+    try {
+        const data = await DONNY_RULES_CACHE.getWithMetadata(url)
+        if (data.value && (!data.metadata || data.metadata.refresh < Date.now())) {
+            await cacheRulesKV(url, data.value)
+        }
+        return data.value
+    } catch (e) {
+        return null
+    }
+}
+
+function cacheRulesKV(url: string, text: string): Promise<void> {
+    const refresh = Date.now() + 86400 * 1000
+    return DONNY_RULES_CACHE.put(url, text, {
+        expirationTtl: 86400 * 3,
+        metadata: {
+            refresh,
+        },
+    })
 }
 
 function getCookie(request: Request, name: string) {

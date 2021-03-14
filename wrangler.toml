@@ -3,3 +3,6 @@ type = "webpack"
 account_id = "7d248d5606f44400b99898421700ca8c"
 workers_dev = true
 webpack_config = "webpack.config.js"
+kv_namespaces = [
+  { binding = "DONNY_RULES_CACHE", id = "18802831066e4cbaa470ba81de05b0ba", preview_id = "bf7e0065f4be4ee386bbe53c86866f25" },
+]
