@@ -8,7 +8,8 @@ export async function handleRequest(request: Request): Promise<Response> {
     const request_url = new URL(request.url)
 
     if (request_url.pathname === '/favicon.ico' || request_url.pathname === '/favicon.jpg') {
-        return fetch(new Request(`${STATIC_URL}${request_url.pathname}`))
+        const url = decodeURIComponent(getCookie(request, "favicon_path")) || STATIC_URL
+        return fetch(new Request(`${url}${request_url.pathname}`))
     }
     if (request_url.pathname === '/') {
         const rules = await fetchRules(request)
@@ -85,6 +86,12 @@ async function indexContent(request: Request): Promise<string> {
             <input type="button" id="set" value="Set">
             <input type="button" id="reset" value="Reset">
         </p>
+        <p>Favicon path:
+            <input type="text" id="favicon_path" style="min-width: 8ch; width: 0ch;">
+            /favicon.{ico,jpg}
+            <input type="button" id="icon_set" value="Set">
+            <input type="button" id="icon_reset" value="Reset">
+        </p>
         <p>Would like to share your rules? Post issues / pull requests to <a href="https://github.com/swordfeng/donnylol">DonnyLOL</a>.</p>
         <p>Rules:</p>
         <pre id="rules">${(cache_fallback ? rules_cached : rules_text)}</pre>
@@ -93,6 +100,9 @@ async function indexContent(request: Request): Promise<string> {
             const gist_id_input = document.getElementById('gist_id')
             const set_button = document.getElementById('set')
             const reset_button = document.getElementById('reset')
+            const favicon_path_input = document.getElementById('favicon_path')
+            const icon_set_button = document.getElementById('icon_set')
+            const icon_reset_button = document.getElementById('icon_reset')
 
             github_user_input.addEventListener('input', () => {
                 github_user_input.style.width = github_user_input.value.length + 'ch'
@@ -109,6 +119,25 @@ async function indexContent(request: Request): Promise<string> {
                 document.cookie = 'gist_id=; expires=Thu, 01 Jan 1970 00:00:00 UTC'
                 location.reload()
             })
+
+            for (let ca of document.cookie.split(';')) {
+                ca = ca.trim()
+                const name = 'favicon_path='
+                if (ca.startsWith(name)) {
+                    favicon_path_input.value = decodeURIComponent(ca.substring(name.length))
+                }
+            }
+            icon_set_button.addEventListener('click', () => {
+                const expiration_date = new Date();
+                expiration_date.setFullYear(expiration_date.getFullYear() + 100);
+                document.cookie = 'favicon_path=' + encodeURIComponent(favicon_path_input.value) + '; path=/; expires=' + expiration_date.toUTCString()
+                location.reload()
+            })
+            icon_reset_button.addEventListener('click', () => {
+                document.cookie = 'favicon_path=; expires=Thu, 01 Jan 1970 00:00:00 UTC'
+                location.reload()
+            })
+
         </script>
     </body>
 </html>`
