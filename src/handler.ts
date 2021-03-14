@@ -60,8 +60,37 @@ async function indexContent(request: Request): Promise<string> {
         <h1>MAKE SEARCH GREAT AGAIN!</h1>
         <p>Current rules URL: <a href="${rules_url}">${rules_url}</a></p>
         <p>Valid: ${valid_yaml}</p>
+        <p>Set another rule: https://gist.github.com/
+            <input type="text" id="github_user" style="min-width: 8ch; width: 0ch;">
+            /
+            <input type="text" id="gist_id" style="width: 32ch;">
+            <input type="button" id="set" value="Set">
+            <input type="button" id="reset" value="Reset">
+        </p>
         <p>Rules:</p>
         <pre id="rules">${rules_text}</pre>
+        <script>
+            const github_user_input = document.getElementById('github_user')
+            const gist_id_input = document.getElementById('gist_id')
+            const set_button = document.getElementById('set')
+            const reset_button = document.getElementById('reset')
+
+            github_user_input.addEventListener('input', () => {
+                github_user_input.style.width = github_user_input.value.length + 'ch'
+            })
+            set_button.addEventListener('click', () => {
+                const expiration_date = new Date();
+                expiration_date.setFullYear(expiration_date.getFullYear() + 100);
+                document.cookie = 'github_user=' + github_user_input.value + '; path=/; expires=' + expiration_date.toUTCString()
+                document.cookie = 'gist_id=' + gist_id_input.value + '; path=/; expires=' + expiration_date.toUTCString()
+                location.reload()
+            })
+            reset_button.addEventListener('click', () => {
+                document.cookie = 'github_user=; expires=Thu, 01 Jan 1970 00:00:00 UTC'
+                document.cookie = 'gist_id=; expires=Thu, 01 Jan 1970 00:00:00 UTC'
+                location.reload()
+            })
+        </script>
     </body>
 </html>`
 }
