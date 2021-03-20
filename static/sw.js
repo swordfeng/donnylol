@@ -522,6 +522,7 @@ async function handleRequest(request) {
     const request_url = new URL(request.url);
     if (request_url.pathname === '/') {
         const rules = await fetchRules();
+        console.log(rules);
         const query = request_url.searchParams.get("q");
         if (query) {
             const redirect_url = rules_1.handleQuery(query, rules);
@@ -567,7 +568,9 @@ async function syncRules() {
             db.createObjectStore(STORE_NAME);
         },
     });
-    await caches.put(STORE_NAME, JSON.stringify(rules), RULES_KEY);
+    const rules_to_store = JSON.stringify(rules);
+    console.log(rules_to_store);
+    await caches.put(STORE_NAME, rules_to_store, RULES_KEY);
     await caches.put(STORE_NAME, Date.now(), UPDATE_TIME_KEY);
     console.log('Rules sync complete');
     return rules;
