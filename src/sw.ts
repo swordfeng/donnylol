@@ -8,5 +8,7 @@ self.addEventListener('fetch', event => {
 })
 
 self.addEventListener('periodicsync', event => {
-    event.waitUntil(syncRules());
+    event.waitUntil(syncRules().catch(e => {
+        console.error(`Failed to sync rules:`, e)
+    }));
 })
