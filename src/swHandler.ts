@@ -45,9 +45,10 @@ async function fetchRules(): Promise<Rule[]> {
 
 export async function syncRules(): Promise<Rule[]> {
     const request = new Request('/rules.json')
-    const response = await fetch(request, {credentials: 'include'})
+    const response = await fetch(request)
     if (!response.ok) throw new Error('no rules available')
-    const rules = JSON.parse(await response.body)
+    const rules = await response.json()
+    console.log(rules)
     const caches: IDBPDatabase<any> = await openDB(DB_NAME, 1, {
         upgrade(db) {
             db.createObjectStore(STORE_NAME)
