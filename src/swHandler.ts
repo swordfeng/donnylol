@@ -9,6 +9,7 @@ const UPDATE_TIME_KEY = 'update_time'
 export async function handleRequest(request: Request): Promise<Response> {
     const request_url = new URL(request.url)
     if (request_url.pathname === '/') {
+        const rules = await fetchRules()
         const query = request_url.searchParams.get("q")
         if (query) {
             const redirect_url = handleQuery(query, rules)
