@@ -163,6 +163,11 @@ async function indexContent(request: Request): Promise<string> {
                     .catch(err => {
                         console.log('ServiceWorker registration failed: ', err)
                     })
+                    navigator.serviceWorker.ready
+                    .then(registration => registration.sync.register('sync-rules'))
+                    .catch(err => {
+                        console.log('Failed to sync: ', err)
+                    })
                 })
             }
         </script>

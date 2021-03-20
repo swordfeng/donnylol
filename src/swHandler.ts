@@ -9,8 +9,6 @@ const UPDATE_TIME_KEY = 'update_time'
 export async function handleRequest(request: Request): Promise<Response> {
     const request_url = new URL(request.url)
     if (request_url.pathname === '/') {
-        const rules = await fetchRules()
-        console.log(rules)
         const query = request_url.searchParams.get("q")
         if (query) {
             const redirect_url = handleQuery(query, rules)
@@ -36,7 +34,7 @@ async function fetchRules(): Promise<Rule[]> {
         rules = await syncRules()
     } else {
         const update_time = await caches.get(STORE_NAME, UPDATE_TIME_KEY)
-        if (Date.now() - update_time > 30000) {
+        if (Date.now() - update_time > 4 * 60 * 60 * 1000) {
             syncRules()
         }
     }
@@ -48,7 +46,6 @@ export async function syncRules(): Promise<Rule[]> {
     const response = await fetch(request)
     if (!response.ok) throw new Error('no rules available')
     const rules = await response.json()
-    console.log(rules)
     const caches: IDBPDatabase<any> = await openDB(DB_NAME, 1, {
         upgrade(db) {
             db.createObjectStore(STORE_NAME)
