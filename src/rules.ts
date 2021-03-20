@@ -2,7 +2,7 @@
 export interface Rule {
     keywords?: string[],
     match?: string,
-    search: string,
+    search?: string,
     suggestion?: string,
     default?: string,
 }
@@ -20,7 +20,7 @@ function matchRule(query: string, rules: Rule[]): RuleMatch | null {
     const remainQuery = spaceIdx === -1 ? '' : query.slice(spaceIdx + 1);
     for (const rule of rules) {
         if (rule.keywords && rule.keywords.indexOf(keyword) !== -1) {
-            if (remainQuery || rule.default) {
+            if ((remainQuery && rule.search) || (!remainQuery && rule.default)) {
                 return {rule, keyword, remainQuery};
             }
         }
@@ -28,7 +28,7 @@ function matchRule(query: string, rules: Rule[]): RuleMatch | null {
             const match = new RegExp('^(?:' + rule.match + ')(?=$| )').exec(query);
             if (match) {
                 const matchedQuery = query.slice(match[0].length + 1);
-                if (matchedQuery || rule.default) {
+                if ((matchedQuery && rule.search) || (!matchedQuery && rule.default)) {
                     return {rule, keyword: match[0], remainQuery: matchedQuery, match}
                 }
             }
@@ -47,7 +47,7 @@ export function handleQuery(query: string, rules: Rule[]): string | null {
     if (!remainQuery && rule.default) {
         return replaceUrl(rule.default, keyword, remainQuery, match)
     }
-    return replaceUrl(rule.search, keyword, remainQuery, match)
+    return replaceUrl(rule.search as string, keyword, remainQuery, match)
 }
 
 type SuggestionResult = [string, string[], any, any]

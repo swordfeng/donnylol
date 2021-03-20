@@ -70,7 +70,7 @@
   search: https://www.urbandictionary.com/define.php?term={query}
   default: https://www.urbandictionary.com/
 # bilibili
-- match: "av\\d+|[bB][vV][A-Za-z0-9]+"
+- match: "av\\d{1,8}|[bB][vV][A-Za-z0-9]{10}"
   default: https://www.bilibili.com/video/{keyword}
 # bang pattern to duckduckgo
 - match: "!\\S+"
