@@ -4,6 +4,7 @@ import { handleQuery, Rule } from './rules'
 const DB_NAME = 'db'
 const STORE_NAME = 'cached_rules'
 const RULES_KEY = 'rules'
+const UPDATE_TIME_KEY = 'update_time'
 
 export async function handleRequest(request: Request): Promise<Response> {
     const request_url = new URL(request.url)
@@ -32,6 +33,11 @@ async function fetchRules(): Promise<Rule[]> {
     }
     if (!rules) {
         rules = await syncRules()
+    } else {
+        const update_time = await caches.get(STORE_NAME, UPDATE_TIME_KEY)
+        if (Date.now() - update_time > 30000) {
+            syncRules()
+        }
     }
     return rules
 }
@@ -47,6 +53,7 @@ export async function syncRules(): Promise<Rule[]> {
         },
     })
     await caches.put(STORE_NAME, JSON.stringify(rules), RULES_KEY)
+    await caches.put(STORE_NAME, Date.now(), UPDATE_TIME_KEY)
     console.log('Rules sync complete')
     return rules
 }

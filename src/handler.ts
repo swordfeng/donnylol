@@ -160,10 +160,6 @@ async function indexContent(request: Request): Promise<string> {
             if ('serviceWorker' in navigator) {
                 window.addEventListener('load', () => {
                     navigator.serviceWorker.register('/sw.js')
-                    .then(navigator.serviceWorker.ready)
-                    .then(registration => registration.periodicSync.register('sync-rules', {
-                              minInterval: 30 * 1000,
-                    })
                     .catch(err => {
                         console.log('ServiceWorker registration failed: ', err)
                     })
