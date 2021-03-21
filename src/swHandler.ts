@@ -1,5 +1,5 @@
 import { openDB, IDBPDatabase } from 'idb'
-import { handleQuery, Rule } from './rules'
+import { handleQuery, Rule, redirectContent } from './rules'
 
 const DB_NAME = 'db'
 const STORE_NAME = 'cached_rules'
@@ -13,7 +13,11 @@ export async function handleRequest(request: Request): Promise<Response> {
         const query = request_url.searchParams.get("q")
         if (query) {
             const redirect_url = handleQuery(query, rules)
-            if (redirect_url) return Response.redirect(redirect_url, 302)
+            if (redirect_url) return new Response(redirectContent(redirect_url), {
+                headers: {
+                    "content-type": "text/html;charset=UTF-8",
+                },
+            })
         }
     }
     return fetch(request)

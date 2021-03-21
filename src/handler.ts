@@ -1,5 +1,5 @@
 import YAML from 'yaml'
-import { handleQuery, handleSuggestion, Rule } from './rules'
+import { handleQuery, handleSuggestion, Rule, redirectContent } from './rules'
 
 declare const DONNY_RULES_CACHE: KVNamespace
 
@@ -17,7 +17,11 @@ export async function handleRequest(request: Request): Promise<Response> {
         const query = request_url.searchParams.get("q")
         if (query) {
             const redirect_url = handleQuery(query, rules)
-            if (redirect_url) return Response.redirect(redirect_url, 302)
+            if (redirect_url) return new Response(redirectContent(redirect_url), {
+                headers: {
+                    "content-type": "text/html;charset=UTF-8",
+                },
+            })
         }
 
         return new Response(await indexContent(request), {

@@ -76,3 +76,12 @@ function replaceUrl(url: string, keyword: string, query: string, match?: RegExpE
     }
     return url;
 }
+
+export function redirectContent(url: string): string {
+    return (
+        '<html><head><meta name="referrer" content="origin"></head><body>' +
+        `<script>window.parent.location.replace(${JSON.stringify(url)});</script>` +
+        `<noscript><meta http-equiv="refresh" content="0;URL=${url.replaceAll('"', '%22')}"></noscript>` +
+        '</body></html>'
+    )
+}
