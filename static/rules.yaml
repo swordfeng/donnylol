@@ -12,8 +12,8 @@
   suggestion: https://duckduckgo.com/ac/?q={query}&type=list
   default: https://duckduckgo.com/
 - keywords: ["s", "sp"]
-  search: https://www.startpage.com/sp/search?q={query}
-  suggestion: https://www.startpage.com/cgi-bin/csuggest?query={query}&limit=10&format=json
+  search: https://www.startpage.com/sp/search?q={query}&segment=
+  suggestion: https://www.startpage.com/suggestions?q={query}&format=opensearch
   default: https://www.startpage.com/
 # wiki
 - match: "(wiki)([a-z]{2,3})"
