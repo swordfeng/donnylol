@@ -1,7 +1,7 @@
 # search engines
 - keywords: ["g"]
   search: https://www.google.com/search?q={query}
-  suggestion: https://suggestqueries.google.com/complete/search?output=firefox&q={query}
+  suggestion: https://suggestqueries.google.com/complete/search?client=firefox&q={query}
   default: https://www.google.com/
 - keywords: ["b"]
   search: https://www.bing.com/search?q={query}
@@ -27,7 +27,7 @@
 # image search
 - keywords: ["gi"]
   search: https://www.google.com/search?tbm=isch&q={query}
-  suggestion: https://images.google.com/complete/search?output=firefox&q={query}
+  suggestion: https://images.google.com/complete/search?client=firefox&q={query}
   default: https://www.google.com/imghp
 - keywords: ["bi"]
   search: https://www.bing.com/images/search?q={query}
@@ -80,4 +80,4 @@
   default: "http://localhost:631/"
 # default
 - search: https://www.google.com/search?q={query}
-  suggestion: https://suggestqueries.google.com/complete/search?output=firefox&q={query}
+  suggestion: https://suggestqueries.google.com/complete/search?client=firefox&q={query}
